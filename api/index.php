@@ -63,9 +63,28 @@ $_ENV['DB_DATABASE'] = '/tmp/database.sqlite';
 $_SERVER['DB_DATABASE'] = '/tmp/database.sqlite';
 putenv('DB_DATABASE=/tmp/database.sqlite');
 
-// Buat file SQLite kosong di /tmp jika belum ada
-if (!file_exists('/tmp/database.sqlite')) {
-    touch('/tmp/database.sqlite');
+// Auto-migrate & seed saat cold start (SQLite baru dibuat di /tmp)
+$dbFile = '/tmp/database.sqlite';
+$migrated = '/tmp/.migrated';
+
+if (!file_exists($dbFile) || !file_exists($migrated)) {
+    // Buat file SQLite kosong
+    if (!file_exists($dbFile)) {
+        touch($dbFile);
+    }
+    
+    // Boot aplikasi untuk menjalankan Artisan
+    $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
+    $kernel->bootstrap();
+    
+    // Jalankan migration
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    
+    // Jalankan seeder (buat user default)
+    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+    
+    // Tandai bahwa migration sudah jalan
+    file_put_contents($migrated, date('Y-m-d H:i:s'));
 }
 
 try {
