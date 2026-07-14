@@ -40,25 +40,41 @@ $_ENV['LOG_CHANNEL'] = 'errorlog';
 $_SERVER['LOG_CHANNEL'] = 'errorlog';
 putenv('LOG_CHANNEL=errorlog');
 
-// Paksa APP_ENV ke production
+// Paksa APP_ENV dan APP_DEBUG untuk debugging sementara
 $_ENV['APP_ENV'] = 'production';
 $_SERVER['APP_ENV'] = 'production';
 putenv('APP_ENV=production');
 
+// SEMENTARA: Aktifkan debug agar error terlihat
+$_ENV['APP_DEBUG'] = 'true';
+$_SERVER['APP_DEBUG'] = 'true';
+putenv('APP_DEBUG=true');
+
+// Set APP_KEY langsung (karena .env mungkin tidak terbaca di Vercel)
+$_ENV['APP_KEY'] = 'base64:CYyVf2RfIYtdDB+cv9llBTcrnGOa5IwOdvUhV3rWnUA=';
+$_SERVER['APP_KEY'] = 'base64:CYyVf2RfIYtdDB+cv9llBTcrnGOa5IwOdvUhV3rWnUA=';
+putenv('APP_KEY=base64:CYyVf2RfIYtdDB+cv9llBTcrnGOa5IwOdvUhV3rWnUA=');
+
+// Paksa DB connection ke sqlite dengan path /tmp agar tidak crash
+$_ENV['DB_CONNECTION'] = 'sqlite';
+$_SERVER['DB_CONNECTION'] = 'sqlite';
+putenv('DB_CONNECTION=sqlite');
+$_ENV['DB_DATABASE'] = '/tmp/database.sqlite';
+$_SERVER['DB_DATABASE'] = '/tmp/database.sqlite';
+putenv('DB_DATABASE=/tmp/database.sqlite');
+
+// Buat file SQLite kosong di /tmp jika belum ada
+if (!file_exists('/tmp/database.sqlite')) {
+    touch('/tmp/database.sqlite');
+}
+
 try {
     $app->handleRequest(Request::capture());
 } catch (\Throwable $e) {
-    // Jika terjadi error, tampilkan pesan yang berguna untuk debugging
+    // Tampilkan error detail untuk debugging
     error_log('Laravel Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
     
-    if (env('APP_DEBUG', false)) {
-        echo '<h1>Error</h1>';
-        echo '<pre>' . $e->getMessage() . "\n" . $e->getTraceAsString() . '</pre>';
-    } else {
-        http_response_code(500);
-        echo '<h1>500 - Server Error</h1>';
-        echo '<p>Terjadi kesalahan pada server. Silakan coba lagi nanti.</p>';
-    }
+    http_response_code(500);
+    echo '<h1>Laravel Error</h1>';
+    echo '<pre>' . htmlspecialchars($e->getMessage()) . "\n\n" . htmlspecialchars($e->getTraceAsString()) . '</pre>';
 }
-
-
