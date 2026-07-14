@@ -1,16 +1,14 @@
 <?php return array (
-  'laravel/pail' => 
+  'barryvdh/laravel-dompdf' => 
   array (
-    'providers' => 
+    'aliases' => 
     array (
-      0 => 'Laravel\\Pail\\PailServiceProvider',
+      'PDF' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
+      'Pdf' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
     ),
-  ),
-  'laravel/sail' => 
-  array (
     'providers' => 
     array (
-      0 => 'Laravel\\Sail\\SailServiceProvider',
+      0 => 'Barryvdh\\DomPDF\\ServiceProvider',
     ),
   ),
   'laravel/tinker' => 
@@ -25,13 +23,6 @@
     'providers' => 
     array (
       0 => 'Carbon\\Laravel\\ServiceProvider',
-    ),
-  ),
-  'nunomaduro/collision' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
     ),
   ),
   'nunomaduro/termwind' => 
