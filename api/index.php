@@ -45,6 +45,11 @@ $_ENV['APP_ENV'] = 'production';
 $_SERVER['APP_ENV'] = 'production';
 putenv('APP_ENV=production');
 
+// Force HTTPS untuk Vercel agar asset/CSS tidak terblokir (Mixed Content)
+$_SERVER['HTTPS'] = 'on';
+$_ENV['HTTPS'] = 'on';
+putenv('HTTPS=on');
+
 // SEMENTARA: Aktifkan debug agar error terlihat
 $_ENV['APP_DEBUG'] = 'true';
 $_SERVER['APP_DEBUG'] = 'true';
